@@ -32,7 +32,6 @@ test {
 }
 
 java {
-    modularity.inferModulePath = true
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
@@ -42,4 +41,40 @@ if (!project.hasProperty("gpr.key") || !project.hasProperty("gpr.user")) {
     throw new GradleException("GitHub Packages credentials (gpr.key and gpr.user) are not set. " +
             "Please execute the \"scripts/deploy/configure_grade_git_credentials.sh\" script to configure access credentials" +
             "to GitHub Packages.")
+}
+
+// Extract JFTF test application metadata from environment CLASS_NAME and TEST_GROUP variables (used by JftfTestCaseGenerator as well)
+def jftfTestName = project.findProperty("jftf.class_name") ?: System.getenv("CLASS_NAME")
+def jftfTestGroup = project.findProperty("jftf.test_group") ?: System.getenv("TEST_GROUP")
+
+if (jftfTestName == null || jftfTestGroup == null) {
+    throw new GradleException("JFTF test application configuration for gradle build file (jftf.class_name and jftf.test_group) are not set. " +
+            "Please execute the \"scripts/sdk/set_test_application_gradle_meta.sh\" script to configure JFTF test application configuration for gradle build file!")
+}
+
+jftfTestName = jftfTestName.toString()
+jftfTestGroup = jftfTestGroup.toString()
+def jftfTestCasePath = "${System.properties['user.home']}/.jftf/test_cases/${jftfTestGroup}/${jftfTestName}"
+
+distributions {
+    main {
+        distributionBaseName = jftfTestName
+    }
+}
+
+tasks.register('copyTestToJftfTargetDirectory', Copy) {
+    from layout.buildDirectory.dir("install/${jftfTestName}")
+    into jftfTestCasePath
+}
+
+startScripts {
+    applicationName = jftfTestName
+}
+
+jar {
+    archiveName "${jftfTestName}.jar"
+}
+
+application {
+    mainClass = "jftf.gen.${jftfTestName}.JftfTestBootstrapper"
 }
