@@ -3,11 +3,22 @@
 # JFTF-Sdk JFTF test application configuration for gradle build file in ~/.gradle/gradle.properties
 # Version 1.0
 
-# Prompt for class name
-read -p "Enter the class name: " className
+# Check if CLASS_NAME environment variable is set
+if [ -n "$CLASS_NAME" ]; then
+  className="$CLASS_NAME"
+else
+  # Prompt for class name
+  read -p "Enter the class name: " className
+fi
 
-# Prompt for test group
-read -p "Enter the test group: " testGroup
+# Check if TEST_GROUP environment variable is set
+if [ -n "$TEST_GROUP" ]; then
+  testGroup="$TEST_GROUP"
+else
+  # Prompt for test group
+  read -p "Enter the test group: " testGroup
+fi
+
 echo
 
 # Path to gradle.properties file
