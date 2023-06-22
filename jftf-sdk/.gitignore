@@ -40,3 +40,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# JFTF Generated Test Case Directory
+
+gen/

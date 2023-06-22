@@ -23,6 +23,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation 'org.jftf.core:jftf-core:1.0'
     implementation 'org.jftf.lib:jftf-lib:1.0'
+    implementation 'org.apache.velocity:velocity-engine-core:2.3'
+    implementation 'com.google.googlejavaformat:google-java-format:1.10.0'
 }
 
 test {

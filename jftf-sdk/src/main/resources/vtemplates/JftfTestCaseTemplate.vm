@@ -1,0 +1,25 @@
+package $packageName;
+
+import jftf.lib.tools.annotations.*;
+import jftf.lib.tools.logger.JftfTestLogger;
+
+@TestCase(featureGroup = "dev", testGroup = "$testGroup", testVersion = "1.0")
+public class $className {
+private JftfTestLogger logger;
+
+@BeforeTest
+void beforeTest(){
+logger = JftfTestLogger.JftfTestLoggerFactory(this.getClass().getSimpleName());
+logger.LogInfo("Test case start!");
+}
+
+@Test
+void testFixture() {
+// Test case implementation
+}
+
+@AfterTest
+void afterTest(){
+logger.LogInfo("Test case end");
+}
+}
