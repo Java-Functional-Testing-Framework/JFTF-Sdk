@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'distribution'
+}
+
+group = 'org.jftf.sdk'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/Java-Functional-Testing-Framework/JFTF-Lib")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.jftf.core:jftf-core:1.0'
+    implementation 'org.jftf.lib:jftf-lib:1.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    modularity.inferModulePath = true
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+// Check if gpr.key and gpr.user are set
+if (!project.hasProperty("gpr.key") || !project.hasProperty("gpr.user")) {
+    throw new GradleException("GitHub Packages credentials (gpr.key and gpr.user) are not set. " +
+            "Please execute the \"scripts/deploy/configure_grade_git_credentials.sh\" script to configure access credentials" +
+            "to GitHub Packages.")
+}
