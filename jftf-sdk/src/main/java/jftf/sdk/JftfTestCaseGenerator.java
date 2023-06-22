@@ -18,11 +18,8 @@ import java.io.StringWriter;
 public class JftfTestCaseGenerator {
     private static final String TEST_CASE_TEMPLATE_FILE = "vtemplates/JftfTestCaseTemplate.vm";
     private static final String BOOTSTRAPPER_TEMPLATE_FILE = "vtemplates/JftfTestBootstrapperTemplate.vm";
-    private static final String OUTPUT_DIRECTORY = "jftf-sdk/src/main/java/jftf/gen/BasicTest";
-    private static final String PACKAGE_NAME = "jftf.sdk.BasicTest";
-    private static final String CLASS_NAME = "JftfDemosBasicTest";
-    private static final String BOOTSTRAPPER_CLASS_NAME = "JftfTestBootstrapper";
-    private static final String TEST_GROUP = "examples"; // Set the desired test group value here
+    private static final String OUTPUT_DIRECTORY = "jftf-sdk/src/main/java/jftf/gen/";
+    private static final String PACKAGE_BASE = "jftf.gen.";
 
     public static void main(String[] args) {
         try {
@@ -30,8 +27,19 @@ public class JftfTestCaseGenerator {
             Velocity.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
             Velocity.init();
 
-            generateTestCase();
-            generateBootstrapper();
+            String className = System.getenv("CLASS_NAME");
+            String testGroup = System.getenv("TEST_GROUP");
+
+            if (className == null || testGroup == null) {
+                System.out.println("Please set the CLASS_NAME and TEST_GROUP environment variables.");
+                return;
+            }
+
+            String outputDirectory = OUTPUT_DIRECTORY + className;
+            String packageName = PACKAGE_BASE + className;
+
+            generateTestCase(className, testGroup, outputDirectory, packageName);
+            generateBootstrapper(className, testGroup, outputDirectory, packageName);
         } catch (ResourceNotFoundException e) {
             System.out.println("Template file not found.");
         } catch (Exception e) {
@@ -39,13 +47,13 @@ public class JftfTestCaseGenerator {
         }
     }
 
-    private static void generateTestCase() throws IOException {
+    private static void generateTestCase(String className, String testGroup, String outputDirectory, String packageName) throws IOException {
         Template template = Velocity.getTemplate(TEST_CASE_TEMPLATE_FILE);
 
         VelocityContext context = new VelocityContext();
-        context.put("packageName", PACKAGE_NAME);
-        context.put("className", CLASS_NAME);
-        context.put("testGroup", TEST_GROUP); // Pass the test group as a variable
+        context.put("packageName", packageName);
+        context.put("className", className);
+        context.put("testGroup", testGroup);
 
         StringWriter writer = new StringWriter();
         template.merge(context, writer);
@@ -54,18 +62,18 @@ public class JftfTestCaseGenerator {
 
         System.out.println("Generated Test Case:\n" + generatedCode);
 
-        saveGeneratedCode(generatedCode, CLASS_NAME + ".java");
+        saveGeneratedCode(generatedCode, className + ".java", outputDirectory);
     }
 
-    private static void generateBootstrapper() throws IOException {
+    private static void generateBootstrapper(String className, String testGroup, String outputDirectory, String packageName) throws IOException {
         Template template = Velocity.getTemplate(BOOTSTRAPPER_TEMPLATE_FILE);
 
         VelocityContext context = new VelocityContext();
-        context.put("packageName", PACKAGE_NAME);
-        context.put("className", CLASS_NAME);
-        context.put("bootstrapperClassName", BOOTSTRAPPER_CLASS_NAME);
-        context.put("testClass", CLASS_NAME + ".class"); // Pass the test class as an argument
-        context.put("testGroup", TEST_GROUP); // Pass the test group as a variable
+        context.put("packageName", packageName);
+        context.put("className", className);
+        context.put("bootstrapperClassName", "JftfTestBootstrapper");
+        context.put("testClass", className + ".class");
+        context.put("testGroup", testGroup);
 
         StringWriter writer = new StringWriter();
         template.merge(context, writer);
@@ -74,19 +82,18 @@ public class JftfTestCaseGenerator {
 
         System.out.println("Generated Bootstrapper:\n" + generatedCode);
 
-        saveGeneratedCode(generatedCode, BOOTSTRAPPER_CLASS_NAME + ".java");
+        saveGeneratedCode(generatedCode, "JftfTestBootstrapper.java", outputDirectory);
     }
 
-    private static void saveGeneratedCode(String generatedCode, String fileName) {
-        File outputDirectory = new File(OUTPUT_DIRECTORY);
-        if (!outputDirectory.exists()) {
-            outputDirectory.mkdirs();
+    private static void saveGeneratedCode(String generatedCode, String fileName, String outputDirectory) {
+        File outputDir = new File(outputDirectory);
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
         }
 
-        File outputFile = new File(outputDirectory, fileName);
+        File outputFile = new File(outputDir, fileName);
 
         try (FileWriter writer = new FileWriter(outputFile)) {
-            // Apply code formatting using Google Java Format
             Formatter formatter = new Formatter();
             String formattedCode = formatter.formatSource(generatedCode);
 
