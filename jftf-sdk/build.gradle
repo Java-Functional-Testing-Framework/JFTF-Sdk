@@ -19,8 +19,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
     implementation 'org.jftf.core:jftf-core:1.0'
     implementation 'org.jftf.lib:jftf-lib:1.0'
     implementation 'org.apache.velocity:velocity-engine-core:2.3'
@@ -130,7 +131,11 @@ tasks.register('printJftfGradleMetaConfiguration') {
         if (file(jftfTestCasePath).exists() && file(jftfTestCaseBinaryPath).exists()) {
             println("Build Status: Compiled & Installed")
         } else {
-            println("Build Status: Not Compiled / Installed")
+            if (file(layout.buildDirectory.dir("install/${jftfTestName}")).exists()) {
+                println("Build Status: Compiled & Not Installed")
+            } else {
+                println("Build Status: Not Compiled & Not Installed")
+            }
         }
     }
 }

@@ -9,10 +9,14 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.9.3" level="project" />
     <orderEntry type="library" name="Gradle: org.jftf.core:jftf-core:1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jftf.lib:jftf-lib:1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.velocity:velocity-engine-core:2.3" level="project" />
     <orderEntry type="library" name="Gradle: com.google.googlejavaformat:google-java-format:1.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-commons:1.9.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.opentest4j:opentest4j:1.2.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.apiguardian:apiguardian-api:1.1.2" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.11" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.slf4j:slf4j-api:1.7.30" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: com.google.guava:guava:30.0-jre" level="project" />
