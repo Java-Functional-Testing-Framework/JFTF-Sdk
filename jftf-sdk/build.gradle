@@ -55,6 +55,7 @@ if (jftfTestName == null || jftfTestGroup == null) {
 jftfTestName = jftfTestName.toString()
 jftfTestGroup = jftfTestGroup.toString()
 def jftfTestCasePath = "${System.properties['user.home']}/.jftf/test_cases/${jftfTestGroup}/${jftfTestName}"
+def jftfTestCaseBinaryPath = "${System.properties['user.home']}/.jftf/test_cases/${jftfTestGroup}/${jftfTestName}/bin/${jftfTestName}"
 
 distributions {
     main {
@@ -63,6 +64,9 @@ distributions {
 }
 
 tasks.register('copyTestToJftfTargetDirectory', Copy) {
+    group = 'jftf'
+    description = 'Copy installed distribution files to JFTF test_cases target directory'
+
     from layout.buildDirectory.dir("install/${jftfTestName}")
     into jftfTestCasePath
 }
@@ -77,4 +81,56 @@ jar {
 
 application {
     mainClass = "jftf.gen.${jftfTestName}.JftfTestBootstrapper"
+}
+
+tasks.register('registerJftfTestCaseViaJFTFCore') {
+    group = 'jftf'
+    description = 'If JFTF test case is compiled, executes the binary with the -r flag for registration'
+
+    doLast {
+        // Check if the binary path exists
+        if (!file(jftfTestCaseBinaryPath).exists()) {
+            throw new GradleException("JFTF test case binary path does not exist: $jftfTestCaseBinaryPath")
+        }
+
+        // Execute the binary with -r flag for registration
+        def process = Runtime.getRuntime().exec("$jftfTestCaseBinaryPath -r")
+
+        // Capture stdout and stderr
+        def stdout = new StringBuilder()
+        def stderr = new StringBuilder()
+
+        process.consumeProcessOutput(stdout, stderr)
+
+        // Wait for the process to complete
+        int exitValue = process.waitFor()
+
+        // Check the exit value
+        if (exitValue != 0) {
+            throw new GradleException("JFTF test case registration failed with exit code: $exitValue\n\n" +
+                    "stdout:\n$stdout\n\nstderr:\n$stderr")
+        } else {
+            println("JFTF test case registration successful!")
+            println("stdout:\n$stdout\n\nstderr:\n$stderr")
+        }
+    }
+}
+
+tasks.register('printJftfGradleMetaConfiguration') {
+    group = 'jftf'
+    description = 'Prints the JFTF test case Gradle meta configuration and build status'
+
+    doLast {
+        println("JFTF Test Case Gradle Meta Configuration:")
+        println("jftfTestName = $jftfTestName")
+        println("jftfTestGroup = $jftfTestGroup")
+        println("jftfTestCasePath = $jftfTestCasePath")
+        println("jftfTestCaseBinaryPath = $jftfTestCaseBinaryPath")
+
+        if (file(jftfTestCasePath).exists() && file(jftfTestCaseBinaryPath).exists()) {
+            println("Build Status: Compiled & Installed")
+        } else {
+            println("Build Status: Not Compiled / Installed")
+        }
+    }
 }
