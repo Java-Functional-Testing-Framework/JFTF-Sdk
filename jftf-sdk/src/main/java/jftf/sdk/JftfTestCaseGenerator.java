@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Objects;
 
 public class JftfTestCaseGenerator {
     private static final String TEST_CASE_TEMPLATE_FILE = "vtemplates/JftfTestCaseTemplate.vm";
@@ -30,7 +31,7 @@ public class JftfTestCaseGenerator {
             String className = System.getenv("CLASS_NAME");
             String testGroup = System.getenv("TEST_GROUP");
 
-            if (className == null || testGroup == null) {
+            if (Objects.equals(className, "") || Objects.equals(testGroup, "")) {
                 System.out.println("Please set the CLASS_NAME and TEST_GROUP environment variables.");
                 return;
             }
